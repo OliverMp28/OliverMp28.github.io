@@ -1,26 +1,15 @@
 var time = new Date();
 var deltaTime = 0;
 
+//aca da la señal al cargar la pagina
 if (document.readyState === "complete" || document.readyState === "interactive"){
-    setTimeout(Init,1);
+    setTimeout(AudioLoad,1);
+    
 }else{
-    document.addEventListener("DOMContentLoaded", Init);
+    document.addEventListener("DOMContentLoaded", AudioLoad);
 }
 
-function Init(){
-    time = new Date();
-    Start();
-    Loop();
-    myFunctionAudio();
-    AudioOn();
-}
 
-function Loop(){
-    deltaTime = (new Date() - time) / 1000;
-    time = new Date();
-    Update()
-    requestAnimationFrame(Loop);
-}
 
 
 var sueloY = 22;
@@ -33,7 +22,7 @@ var dinoPosY = sueloY;
 
 var sueloX = 0;
 var velEscenario = 1280/3;
-var gameVel = 1;
+
 var score = 0;
 
 var parado = false;
@@ -59,13 +48,69 @@ var textoScore;
 var suelo;
 var gameOver;
 var tryAgain;
+var detectarFin = false;
+var x = false;
 
-var audio = document.getElementById('audio');
+var audio1=1;
+audio1 = document.getElementById("audio");
 var cancion = document.getElementById('cancion');
 var audioFinal = document.getElementById("final");
 var audioPi = document.getElementById("pipipi");
 
+var areaTouch= document.getElementById("cuerpo");
 
+
+//esto escucha cuando el audio esta reproduciendo ejecuta la funcion Init, que ejecutara el juego
+if(audio1!=0){
+    audio.addEventListener("play", function(){
+        Init();
+    });
+    
+}
+
+    
+
+function detectar(){
+
+    if(x==false){
+        window.addEventListener("blur", function() {
+            audio1.pause();
+            JuegoStop();
+        });
+    
+        window.addEventListener("focus", function() {
+            audio1.play();
+            JuegoPlay();
+        });
+          
+     }
+    else if(x==true){
+        parado=true;
+        audio1.pause();
+        audio1 = 0;
+        return audio1;
+  
+    }
+  
+}
+
+
+function Init(){
+    time = new Date();
+    Start();
+    Loop();
+    myFunctionAudio();
+    detectar();
+    
+}
+
+function Loop(){
+    deltaTime = (new Date() - time) / 1000;
+    time = new Date();
+    Update()
+    requestAnimationFrame(Loop);
+
+}
 
 
 function Start() {
@@ -91,14 +136,26 @@ function Update() {
     DetectarColision();
 
 
+
+
     velY -= gravedad * deltaTime;
 }
 
-function HandleKeyDown(ev){
-    if(ev.keyCode == 32){
+function HandleKeyDown(ev){       
+    if(ev.keyCode == 32 ){
         Saltar();
     }
 }
+
+areaTouch.addEventListener('touchstart', function detectarTouch(event){
+    //Comprobamos si hay varios eventos del mismo tipo
+    if (event.targetTouches.length == 1) { 
+    var touch = event.targetTouches[0]; 
+    // con esto solo se procesa UN evento touch
+    Saltar();
+    }
+    
+    }, false);
 
 function Saltar(){
     if(dinoPosY === sueloY){
@@ -110,6 +167,8 @@ function Saltar(){
 }
 
 function MoverDinosaurio() {
+
+
     dinoPosY += velY * deltaTime;
     if(dinoPosY < sueloY){
         
@@ -134,15 +193,138 @@ function MoverSuelo() {
 
 }
 
-function CalcularDesplazamiento() {
-    return velEscenario * deltaTime * gameVel;
+//movil
+if(screen.width < 767){
+    var gameVel = 0.7;
+
+    function CalcularDesplazamiento() {
+        return velEscenario * deltaTime * gameVel; 
+    }
+
+    function CrearObstaculo() {
+        var obstaculo = document.createElement("div");
+        contenedor.appendChild(obstaculo);
+        obstaculo.classList.add("cactus");
+        if(Math.random() > 0.5) obstaculo.classList.add("cactus2");
+        obstaculo.posX = contenedor.clientWidth;
+        obstaculo.style.left = contenedor.clientWidth+"px";
+    
+        obstaculos.push(obstaculo);
+        tiempoHastaObstaculo = tiempoObstaculoMin + Math.random() * (tiempoObstaculoMax-tiempoObstaculoMin) / gameVel;
+    }
+    
+    function CrearNube() {
+        var nube = document.createElement("div");
+        contenedor.appendChild(nube);
+        nube.classList.add("nube");
+        nube.posX = contenedor.clientWidth;
+        nube.style.left = contenedor.clientWidth+"px";
+        nube.style.bottom = minNubeY + Math.random() * (maxNubeY-minNubeY)+"px";
+        
+        nubes.push(nube);
+        tiempoHastaNube = tiempoNubeMin + Math.random() * (tiempoNubeMax-tiempoNubeMin) / gameVel;
+    }
+
+    function GanarPuntos() {
+        score++;
+        textoScore.innerText = score;
+        
+        if(score == 5){
+            gameVel = 1.2;
+            contenedor.classList.add("mediodia");
+        }else if(score == 15) {
+            gameVel = 1.4;
+            contenedor.classList.add("tarde");
+        } else if(score == 25) {
+            gameVel = 2.1;
+            contenedor.classList.add("noche");
+        }
+        suelo.style.animationDuration = (3/gameVel)+"s";
+    } 
+
+    function DetectarColision() {
+        for (var i = 0; i < obstaculos.length; i++) {
+            if(obstaculos[i].posX > dinoPosX + dino.clientWidth) {
+                //EVADE
+                break; //al estar en orden, no puede chocar con más
+            }else{
+                if(IsCollision(dino, obstaculos[i], 10, 20, 15, 20)) {
+                    GameOver();
+                }
+            }
+        }
+    }
 }
+//ordenador
+else if (screen.width > 767){
+    var gameVel = 1;
+
+    function CalcularDesplazamiento() {
+        return velEscenario * deltaTime * gameVel;
+    }
+
+    function CrearObstaculo() {
+        var obstaculo = document.createElement("div");
+        contenedor.appendChild(obstaculo);
+        obstaculo.classList.add("cactus");
+        if(Math.random() > 0.5) obstaculo.classList.add("cactus2");
+        obstaculo.posX = contenedor.clientWidth;
+        obstaculo.style.left = contenedor.clientWidth+"px";
+    
+        obstaculos.push(obstaculo);
+        tiempoHastaObstaculo = tiempoObstaculoMin + Math.random() * (tiempoObstaculoMax-tiempoObstaculoMin) / gameVel;
+    }
+    
+    function CrearNube() {
+        var nube = document.createElement("div");
+        contenedor.appendChild(nube);
+        nube.classList.add("nube");
+        nube.posX = contenedor.clientWidth;
+        nube.style.left = contenedor.clientWidth+"px";
+        nube.style.bottom = minNubeY + Math.random() * (maxNubeY-minNubeY)+"px";
+        
+        nubes.push(nube);
+        tiempoHastaNube = tiempoNubeMin + Math.random() * (tiempoNubeMax-tiempoNubeMin) / gameVel;
+    }
+
+    function GanarPuntos() {
+        score++;
+        textoScore.innerText = score;
+         if(score == 5){
+            gameVel = 1.5;
+            contenedor.classList.add("mediodia");
+        }else if(score == 15) {
+            gameVel = 2;
+            contenedor.classList.add("tarde");
+        } else if(score == 25) {
+            gameVel = 3;
+            contenedor.classList.add("noche");
+        }
+        suelo.style.animationDuration = (3/gameVel)+"s";
+    } 
+
+    function DetectarColision() {
+        for (var i = 0; i < obstaculos.length; i++) {
+            if(obstaculos[i].posX > dinoPosX + dino.clientWidth) {
+                //EVADE
+                break; //al estar en orden, no puede chocar con más
+            }else{
+                if(IsCollision(dino, obstaculos[i], 10, 30, 15, 20)) {
+                    GameOver();
+                }
+            }
+        }
+    }
+}
+
+
 
 function Estrellarse() {
     dino.classList.remove("dino-corriendo");
     dino.classList.add("dino-estrellado");
     parado = true;
     AudioOff();
+    AudioPipipi();
 }
 
 function DecidirCrearObstaculos() {
@@ -159,29 +341,7 @@ function DecidirCrearNubes() {
     }
 }
 
-function CrearObstaculo() {
-    var obstaculo = document.createElement("div");
-    contenedor.appendChild(obstaculo);
-    obstaculo.classList.add("cactus");
-    if(Math.random() > 0.5) obstaculo.classList.add("cactus2");
-    obstaculo.posX = contenedor.clientWidth;
-    obstaculo.style.left = contenedor.clientWidth+"px";
 
-    obstaculos.push(obstaculo);
-    tiempoHastaObstaculo = tiempoObstaculoMin + Math.random() * (tiempoObstaculoMax-tiempoObstaculoMin) / gameVel;
-}
-
-function CrearNube() {
-    var nube = document.createElement("div");
-    contenedor.appendChild(nube);
-    nube.classList.add("nube");
-    nube.posX = contenedor.clientWidth;
-    nube.style.left = contenedor.clientWidth+"px";
-    nube.style.bottom = minNubeY + Math.random() * (maxNubeY-minNubeY)+"px";
-    
-    nubes.push(nube);
-    tiempoHastaNube = tiempoNubeMin + Math.random() * (tiempoNubeMax-tiempoNubeMin) / gameVel;
-}
 
 function MoverObstaculos() {
     for (var i = obstaculos.length - 1; i >= 0; i--) {
@@ -208,40 +368,20 @@ function MoverNubes() {
     }
 }
 
-function GanarPuntos() {
-    score++;
-    textoScore.innerText = score;
-    if(score == 5){
-        gameVel = 1.5;
-        contenedor.classList.add("mediodia");
-    }else if(score == 15) {
-        gameVel = 2;
-        contenedor.classList.add("tarde");
-    } else if(score == 25) {
-        gameVel = 3;
-        contenedor.classList.add("noche");
-    }
-    suelo.style.animationDuration = (3/gameVel)+"s";
-} 
 
 function GameOver() {
     Estrellarse();
     gameOver.style.display = "block";
     tryAgain.style.display = "block";
-    AudioPipipi();
+    Terminar();
 }
 
-function DetectarColision() {
-    for (var i = 0; i < obstaculos.length; i++) {
-        if(obstaculos[i].posX > dinoPosX + dino.clientWidth) {
-            //EVADE
-            break; //al estar en orden, no puede chocar con más
-        }else{
-            if(IsCollision(dino, obstaculos[i], 10, 30, 15, 20)) {
-                GameOver();
-            }
-        }
-    }
+function JuegoStop() {
+    parado = true;
+}
+
+function JuegoPlay() {
+    parado = false;
 }
 
 function IsCollision(a, b, paddingTop, paddingRight, paddingBottom, paddingLeft) {
@@ -255,13 +395,27 @@ function IsCollision(a, b, paddingTop, paddingRight, paddingBottom, paddingLeft)
         (aRect.left + paddingLeft > (bRect.left + bRect.width))
     );
 }
+
+
+    function AudioLoad(){
+
+        audio1.load();
+        audio1.play();
+
+    }
+  
+
+
 function AudioOn(){
-       audio.load();
-       audio.play();
+       audio1.play();
 }
 
+function AudioPause(){
+    audio1.pause();
+};
+
 function AudioOff(){
-        audio.pause();                  
+        audio1.pause();                  
 }
 
 function AudioFinalOn(){
@@ -274,11 +428,17 @@ function AudioPipipi(){
     audioPi.play();
 }
 
+function Terminar(){
+    x=true;
+    return x;
+}
 
-audio.addEventListener("ended", function(){
+audio1.addEventListener("ended", function(){
     Win();
     AudioFinalOn();
 });
+
+
 
 function Win(){
     youWin.style.display = "block";
@@ -287,6 +447,9 @@ function Win(){
     dino.classList.remove("dino-corriendo");
     dino.classList.add("dino-estrellado"); 
     parado = true;
+
+
+    Terminar();
 }
 
 
@@ -300,22 +463,24 @@ function Win(){
 
 
 
-function myFunctionAudio(){
-    audio = document.getElementById("audio");
+    function myFunctionAudio(){
+      
+    
+    // ejecutamos con setInterval cada 1 seg la función verifica_fin()
+    var fin =window.setInterval(function(){
+        verifica_fin();
+        },1000);
+    }
 
-// ejecutamos con setInterval cada 1 seg la función verifica_fin()
-var fin =window.setInterval(function(){
-    verifica_fin();
-    },1000);
-}
+
 
     function verifica_fin(){
-        var tiempoActual = audio.currentTime; // recuperamos el tiempo actual de reproducción y lo redondeamos a un entero
+        var tiempoActual = audio1.currentTime; // recuperamos el tiempo actual de reproducción y lo redondeamos a un entero
         var segs = tiempoActual.toString(); // convertimos el tiempo actual a una cadena para poder formatearlo en hh:mm:ss
         // mandamos el tiempo actual a un div en pantalla
         // document.getElementById('comprobacion1').innerHTML = segs;
 
-        var duracion = audio.duration;
+        var duracion = audio1.duration;
         var tiempoTotal = duracion.toString();
         // document.getElementById('comprobacion2').innerHTML =tiempoTotal; //a optimizar en el futuro
  
@@ -324,14 +489,12 @@ var fin =window.setInterval(function(){
         var porcentajeHallado = porcentaje.toString();
         porcentajeFinal = (100-porcentaje)+porcentaje;
 
-        if(audio.ended){// cuando finaliza ó está en pausa.... detenemos el setInterval
-            
+        if(audio1.ended){// cuando finaliza ó está en pausa.... detenemos el setInterval            
             document.getElementById('tiempox').innerHTML =  "100%";
-    
- 
-        }else{
-        document.getElementById('tiempox').innerHTML = Math.round(porcentajeHallado)  + "%";          
-        
         }
-         
+        
+        else{
+        document.getElementById('tiempox').innerHTML = Math.round(porcentajeHallado)  + "%"; 
+        return porcentajeHallado;                
+        }     
     }
