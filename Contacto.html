@@ -8,30 +8,11 @@
     <link rel="stylesheet" href="estilos.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
     <style>
-        #fondo{    
-            background-image: url("img/atlantida.jpg");
-            
-            width: 100vh;
-
-           
-            height: 100vh;
-            background-size: contain;
-
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-
-            float: left;
-        }
         .recuperar {
             clear: both;
             padding: 10px;
         }
-        article{
-            float: right;
-            width: 35%;
-            margin: 30px;
-            margin-top: 100px;
-        }
+
         article h1{
             font-size: 3rem;
             margin: 40px;
@@ -45,14 +26,74 @@
         }
 
         .mapa{
-            width: 80%;
+            width: 60%;
             border-radius: 10px;
-            padding: 10px;
+
             border: 1px rgb(170, 35, 35) solid;
             margin: 0 auto;
             margin-bottom: 40px;
         }
-        
+
+        @media screen and (max-width:767px){
+            #fondo{    
+            background-image: url("img/atlantida.jpg");
+            
+            width: 100%;
+            margin: 0 auto;
+           
+            height: 100vh;
+            background-size: contain;
+
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+
+            float: left;
+        }
+            article{
+                width: 80%;
+                float: left;
+            }
+                #titulo{
+                text-align: center;
+                font-size: 2rem;
+                margin-top: 40px;
+                font-family: Georgia, 'Times New Roman', Times, serif;
+            }
+                .parrafo{
+                font-size: 1rem;
+                margin: 20px;
+            }
+        }
+        @media screen and (min-width: 768px){
+            #fondo{    
+            background-image: url("img/atlantida.jpg");
+            
+            width: 50%;
+
+           
+            height: 100vh;
+            background-size: contain;
+
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+
+            float: left;
+        }
+            article{
+            width: 50%;
+            float: left;
+            }
+            #titulo{
+                text-align: center;
+                font-size: 3rem;
+                margin-top: 80px;
+                font-family: Georgia, 'Times New Roman', Times, serif;
+            }
+            .parrafo{
+                font-size: 2rem;
+                margin: 30px;
+            }
+        }
 
     </style>
 </head>
