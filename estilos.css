@@ -364,13 +364,12 @@ header{
 
 /*footer*/
 #pielogo {
-    width: 100%;
-    padding: 2%;
+    width: 98%;
     background-image: url("img/fondo3.png");
-    
+    padding: 2%;
   }
   #pielogo > div {
-    width: 960px;
+    width: 90%;
     margin: 0px auto;
     background-color: #b5a6d5;
     border-radius: 10px;
