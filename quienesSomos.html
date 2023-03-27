@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="estilos.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
     <style>
-        #atlantida{
+       #atlantida{
             float: right;
             position: sticky;
             background-attachment: fixed;
@@ -17,19 +17,38 @@
             clear: both;
             padding: 10px;
         }
-        article{
+
+        @media screen and (max-width:767px){
+                article{
+                width: 80%;
+                float: left;
+            }
+                #titulo{
+                text-align: center;
+                font-size: 2rem;
+                margin-top: 60px;
+                font-family: Georgia, 'Times New Roman', Times, serif;
+            }
+                .parrafo{
+                font-size: 1rem;
+                margin: 20px;
+            }
+        }
+        @media screen and (min-width: 768px){
+            article{
             width: 50%;
             float: left;
-        }
-        #titulo{
-            text-align: center;
-            font-size: 3rem;
-            margin-top: 80px;
-            font-family: Georgia, 'Times New Roman', Times, serif;
-        }
-        .parrafo{
-            font-size: 2rem;
-            margin: 30px;
+            }
+            #titulo{
+                text-align: center;
+                font-size: 3rem;
+                margin-top: 80px;
+                font-family: Georgia, 'Times New Roman', Times, serif;
+            }
+            .parrafo{
+                font-size: 2rem;
+                margin: 30px;
+            }
         }
     </style>
 </head>
